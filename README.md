@@ -1,7 +1,7 @@
 ## Download the resources
 
 ```
-git clone repo
+git clone https://github.com/ebah80/lab_ansible.git
 ```
 
 ## Build the environment
