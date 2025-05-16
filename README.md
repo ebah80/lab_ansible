@@ -46,10 +46,6 @@ ansible -i inventory.ini all -m ping --list-hosts
 ansible -i inventory.ini all -m ping --limit "demo" --list-hosts
 ```
 
-## Collection (or modules ...)
-
-- https://docs.ansible.com/ansible/latest/collections/index.html
-
 ## ansible-playbook
 ```
 ansible-playbook 001.yml -i inventory.ini --list-hosts
