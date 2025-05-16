@@ -1,0 +1,11 @@
+# Disable all password/challenge auth and PAM
+#UsePAM no
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+
+# Enable only public-key auth
+PubkeyAuthentication yes
+AuthenticationMethods publickey
+
+# (Optional) Where to find keys
+AuthorizedKeysFile     .ssh/authorized_keys

@@ -1,0 +1,20 @@
+ansible -i inventory.ini --list tokyo --list-hosts
+ansible -i inventory.ini --list "bar*" --list-hosts
+ansible -i inventory.ini "barcelona:&tokyo" --list-hosts
+ansible -i inventory.ini "barcelona:tokyo" --list-hosts
+ansible -i inventory.ini all --list-hosts
+ansible sshnode -i inventory.ini -m setup
+ansible all -i inventory.ini -m pingclear
+ansible all -i inventory.ini -m ping
+ansible sshnode -i inventory.ini -m setup
+ansible -i hosts all -m ping --list-hosts
+ansible -i inventory.ini  all -m ping --list-hosts
+ansible -i inventory.ini all -m ping --limit "demo" --list-hosts
+ansible -i inventory.ini all -m ping --limit "tokyo" --list-hosts
+ansible sshnode -i inventory.ini -m setup
+ansible sshnode -i inventory.ini -m setup -a "filter=ansible_distribution*"
+ansible sshnode -i inventory.ini -m setup -a "filter=ansible_architecture"
+ls -l
+cat 001.yml 
+ansible-playbook 001.yml -i inventory.ini --list-hosts
+ansible-playbook 001.yml -i inventory.ini
