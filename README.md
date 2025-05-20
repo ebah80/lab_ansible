@@ -23,6 +23,11 @@ To integrate Docker Desktop with WSL2:
 git clone https://github.com/ebah80/lab_ansible.git
 ```
 
+Downlaod MariaDB from here:
+- https://archive.mariadb.org//mariadb-11.4.4/bintar-linux-systemd-x86_64/mariadb-11.4.4-linux-systemd-x86_64.tar.gz
+
+and copy in /ansible/files/
+
 ## Build the environment
 
 ```
