@@ -1,0 +1,202 @@
+ansible -i inventory.ini --list tokyo --list-hosts
+ansible -i inventory.ini --list "bar*" --list-hosts
+ansible -i inventory.ini "barcelona:&tokyo" --list-hosts
+ansible -i inventory.ini "barcelona:tokyo" --list-hosts
+ansible -i inventory.ini all --list-hosts
+ansible sshnode -i inventory.ini -m setup
+ansible all -i inventory.ini -m pingclear
+ansible all -i inventory.ini -m ping
+ansible sshnode -i inventory.ini -m setup
+ansible -i hosts all -m ping --list-hosts
+ansible -i inventory.ini  all -m ping --list-hosts
+ansible -i inventory.ini all -m ping --limit "demo" --list-hosts
+ansible -i inventory.ini all -m ping --limit "tokyo" --list-hosts
+ansible sshnode -i inventory.ini -m setup
+ansible sshnode -i inventory.ini -m setup -a "filter=ansible_distribution*"
+ansible sshnode -i inventory.ini -m setup -a "filter=ansible_architecture"
+ls -l
+cat 001.yml 
+ansible-playbook 001.yml -i inventory.ini --list-hosts
+ansible-playbook 001.yml -i inventory.ini
+ansible all -i inventory.ini -m ping
+ansible -v all -i inventory.ini -m ping
+ansible sshnode -i inventory.ini -m setup
+ansible web3 -i inventory.ini -m setup
+ls -l
+ansible-playbook 001.yml -i inventory.ini --list-hosts
+ansible-playbook 001.yml -i inventory.ini
+ansible -i inventory.ini -m setup
+ansible all -i inventory.ini -m setup
+ansible-playbook 001.yml -i inventory.ini
+ansible all -i inventory.ini -m ping
+ansible-playbook 001.yml -i inventory.ini
+ansible-playbook 002.yml -i inventory/inventory.ini
+ansible-playbook 002.yml -i inventory/hosts.ini
+hostname
+ansible web1 -i inventory.ini -m setup
+ansible web1 -i inventory/hosts.ini -m setup
+ansible web1 -i inventory/hosts.ini -m setup | grep web1
+curl web1
+apk add curl
+curl web1
+curl web2
+curl web3
+curl web[1,2,3]
+for i in (1,2,3); do
+for i in 1 2 3; do
+curl $i
+done
+ansible web1 -i inventory/hosts.ini -m setup | grep web1
+ansible web1 -i inventory/hosts.ini -m setup | grep docker
+pwd
+for i in 1,2,3; do
+echo $i
+done
+for i in 1,2,3; do
+vurl $i
+for i in 1,2,3; do
+curl $i
+done
+for i in 1,2,3; do
+curl web$i
+done
+for i in 1,2,3; do
+echo "web$i"; curl "web$i";
+done
+for i in 1 2 3; do
+echo "web$i"; curl "web$i";
+done
+/bin/bash
+echo $SHELL
+SHELL
+env
+which sh
+mkdir scripts
+cd scripts/
+sh curl.sh 
+clear
+./curl.sh 
+chmod a+x curl.sh 
+sh curl.sh 
+cd ..
+sh ./scripts/curl.sh 
+ansible-playbook 002_welcome_page.yml  -i inventory/hosts.ini
+ssh web1
+ssh mariadb1
+ssh -i /root/.ssh/id_rsa_ansible ansible@mariadb1
+ls -l
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini --lsit-hosts
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini --list-hosts
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini --check
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini
+ls -l
+ls -l files/
+rm mariadb-10.5.27-linux-systemd-x86_64.tar.gz mariadb-11.4.4-linux-systemd-x86_64.tar.gz
+ls -l files/
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini
+ls -l files/
+id
+id ansible
+ll
+ls -l
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini
+ls -l files/
+is 1000
+id 1
+pwd
+ls -l
+ls -l files/
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini
+nc
+nc -vz mariadb1 3306
+ansible-playbook 003_mariadb.yml -i inventory/hosts.ini
+nc -vz mariadb1 3306
+pwd
+ls -l role/
+ansible-galaxy collection list
+ansible-galaxy collection list community.mysql
+ansible-galaxy collection install community.mysql
+ansible-galaxy
+ansible-galaxy role
+ansible role list
+ansible-galaxy role list
+ansible-galaxy collection install community.mysql -p roles/
+ls -l
+ls -l roles/
+id
+ansible-galaxy collection list
+ansible-galaxy role list
+ls -l /usr/lib/python3.12/site-packages/ansible_collections
+ls -l /usr/lib/python3.12/site-packages/ansible_collections/community/mysql/
+ls -l /usr/lib/python3.12/site-packages/ansible_collections/community/mysql/plugins/
+ls -l /usr/lib/python3.12/site-packages/ansible_collections/community/mysql/plugins/module
+ls -l /usr/lib/python3.12/site-packages/ansible_collections/community/mysql/plugins/modules/
+ansible-galaxy collection install community.mysql
+pwd
+ls -l
+    - name: Ensure MariaDB users are present with correct privileges
+      community.mysql.mysql_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        priv: "{{ item.priv }}"
+        host: "{{ item.host }}"
+        state: present
+      loop: "{{ db_users }}"
+      loop_control:
+ansible-playbook 004_mariadb_create_db.yml -i inventory/hosts.ini
+ansible-playbook 005_mariadb_create_users.yml  -i inventory/hosts.ini
+clear
+ansible-playbook 005_mariadb_create_users.yml  -i inventory/hosts.ini
+clear
+ansible-playbook 005_mariadb_create_users.yml  -i inventory/hosts.ini
+clear
+ansible-playbook 005_mariadb_create_users.yml  -i inventory/hosts.ini
+ansible-playbook -vvv 005_mariadb_create_users.yml  -i inventory/hosts.ini
+ansible-playbook 004_mariadb_create_db.yml -i inventory/hosts.ini
+ansible-playbook 005_mariadb_create_users.yml  -i inventory/hosts.ini
+ansible-playbook 004_mariadb_create_db.yml -i inventory/hosts.ini
+ansible-playbook 005_mariadb_create_users.yml  -i inventory/hosts.ini
+ansible-playbook 004_mariadb_create_db.yml -i inventory/hosts.ini
+ansible-playbook 005_mariadb_create_users.yml  -i inventory/hosts.ini
+ansible sshnode -i inventory.ini -m setup
+ansible sshnode -i inventory/hosts.ini -m setup
+ansible all -i inventory/hosts.ini -m ping
+ansible barcelona -i inventory/hosts.ini -m ping
+ansible tokyo -i inventory/hosts.ini -m ping
+ansible sshnode -i inventory/hosts.ini -m setup -a "filter=ansible_distribution*"
+ansible sshnode -i inventory/hosts.ini -m setup -a "filter=ansible_distribution"
+ansible -i inventory/hosts.ini "barcelona:&tokyo" --list-hosts
+ansible -i inventory/hosts.ini "barcelona&tokyo" --list-hosts
+ansible -i inventory/hosts.ini "barcelona:tokyo" --list-hosts
+ansible -i inventory/hosts.ini --list "bar*" --list-hosts
+ansible -i inventory/hosts.ini all -m ping --limit "demo"
+ansible -i inventory/hosts.ini all -m ping --list-hosts
+ansible -i inventory/hosts.ini all -m ping --limit "demo" --list-hosts
+ansible-playbook 001_install_apache.yml -i inventory/hosts.ini --list-hosts
+ansible-playbook 001_install_apache.yml -i inventory/hosts.ini
+sh ./scripts/curl.sh
+apk add --no-cache curl
+sh ./scripts/curl.sh
+ansible-playbook 002_welcome_page.yml -i inventory/hosts.ini
+sh ./scripts/curl.sh
+ansible-playbook 003_install_configure_mariadb.yml -i inventory/hosts.ini
+ansible-playbook 004_mariadb_create_db.yml -i inventory/hosts.ini
+ansible-playbook 005_mariadb_create_users.yml -i inventory/hosts.ini
+curl
+apk add --no-cache curl
+ansible all -i inventory/hosts.ini -m ping
+ansible-playbook 001_install_apache.yml -i inventory/hosts.ini
+sh ./scripts/curl.sh
+ansible-playbook 002_welcome_page.yml -i inventory/hosts.ini
+ssh -v sshnode
+ssh -v ansible@sshnode
+ls -l
+ls -l ~/.ssh/
+ssh -v -i ~/.ssh/id_rsa_ansible ansible@sshnode
+ssh -vv -i ~/.ssh/id_rsa_ansible ansible@sshnode
+ssh -vvv -i ~/.ssh/id_rsa_ansible ansible@sshnode
+ansible-playbook 003_install_configure_mariadb.yml -i inventory/hosts.ini
+ansible-playbook 006_mariadb_create_users_vault.yml 
+ansible-playbook 006_mariadb_create_users_vault.yml -i inventory/hosts.ini --ask-vault-pass
+ansible-playbook 003_install_configure_mariadb.yml -i inventory/hosts.ini
+ansible-playbook 006_mariadb_create_users_vault.yml -i inventory/hosts.ini --ask-vault-pass

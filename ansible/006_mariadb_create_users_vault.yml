@@ -1,0 +1,30 @@
+---
+- name: Create mariadb custom users
+  hosts: db
+  become: true
+  collections:
+    - community.mysql
+  vars_files:
+    - db_passwords.yml
+
+  vars:
+    db_users:
+      - name: rick
+        password: "{{ vault_db_passwords.rick }}"
+        priv:
+          'foo.*': 'ALL,GRANT'
+        host: "localhost"
+    mysql_socket: "/var/lib/mariadb-11.4.4/mariadb.sock"
+
+  tasks:
+    - name: Ensure MariaDB users are present with correct privileges
+      community.mysql.mysql_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        priv: "{{ item.priv }}"
+        host: "{{ item.host }}"
+        state: present
+        config_file: /etc/mariadb/11.4.4.cnf
+      loop: "{{ db_users }}"
+      loop_control:
+        label: "{{ item.name }}"

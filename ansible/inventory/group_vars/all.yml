@@ -1,0 +1,5 @@
+mariadb_versions:
+  - version: "11.4.4"
+    url: "https://archive.mariadb.org//mariadb-11.4.4/bintar-linux-systemd-x86_64/mariadb-11.4.4-linux-systemd-x86_64.tar.gz"
+    file: mariadb-11.4.4-linux-systemd-x86_64.tar.gz
+    port: 3306

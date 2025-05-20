@@ -1,0 +1,129 @@
+---
+- name: Setup multiple MariaDB server versions on Linux
+  hosts: db
+  become: true
+  vars_files:
+    - inventory/group_vars/all.yml
+
+  tasks:
+
+    - name: Install PyMySQL driver
+      ansible.builtin.dnf:
+        name: python3-PyMySQL
+        state: present
+
+    - name: Create required directories
+      file:
+        path: "/opt/mariadb"
+        state: directory
+        mode: '0755'
+
+    - name: Create mariadb user
+      user:
+        name: mariadb
+        shell: /sbin/nologin
+        system: yes
+        create_home: no
+
+    # - name: Download MariaDB tarball
+    #   get_url:
+    #     url: "{{ item.url }}"
+    #     dest: "/ansible/files/mariadb-{{ item.version }}.tar.gz"
+    #     mode: '0644'
+    #   loop: "{{ mariadb_versions }}"
+
+    - name: Extract MariaDB tarballs
+      unarchive:
+        src: "{{ playbook_dir }}/files/{{ item.file }}"
+        dest: "/opt/mariadb"
+        remote_src: no
+      loop: "{{ mariadb_versions }}"
+      loop_control:
+        label: "{{ item.file }}"
+
+    - name: Rename extracted MariaDB directories
+      command: mv /opt/mariadb/mariadb-{{ item.version }}-linux-systemd-x86_64 /opt/mariadb/mariadb-{{ item.version }}
+      args:
+        creates: "/opt/mariadb/mariadb-{{ item.version }}"
+      loop: "{{ mariadb_versions }}"
+
+    - name: Create data directories
+      file:
+        path: "/var/lib/mariadb-{{ item.version }}"
+        state: directory
+        owner: mariadb
+        group: mariadb
+        mode: '0755'
+      loop: "{{ mariadb_versions }}"
+
+    - name: Create log files
+      file:
+        path: "/var/log/mariadb-{{ item.version }}.log"
+        state: touch
+        owner: mariadb
+        group: mariadb
+        mode: '0644'
+      loop: "{{ mariadb_versions }}"
+
+    # - name: Create configuration directories
+    #   file:
+    #     path: "/etc/mariadb-{{ item.version }}"
+    #     state: directory
+    #     owner: mariadb
+    #     group: mariadb
+    #     mode: '0755'
+    #   loop: "{{ mariadb_versions }}"
+
+    - name: Create configuration directories
+      file:
+        path: "/etc/mariadb"
+        state: directory
+        owner: mariadb
+        group: mariadb
+        mode: '0755'
+
+    - name: Generate my.cnf files as /etc/mariadb/mariadb-version.cnf
+      ansible.builtin.template:
+        src: template/etc/mariadb/my.cnf.j2
+        dest: "/etc/mariadb/{{ item.version }}.cnf"
+        owner: root
+        group: root
+        mode: "0644"
+        backup: yes
+      loop: "{{ mariadb_versions }}"
+
+    - name: Initialize MariaDB datadirs
+      shell: |
+        /opt/mariadb/mariadb-{{ item.version }}/scripts/mariadb-install-db \
+          --basedir=/opt/mariadb/mariadb-{{ item.version }} \
+          --datadir=/var/lib/mariadb-{{ item.version }} \
+          --user=mariadb
+      loop: "{{ mariadb_versions }}"
+
+    - name: Generate mariadb systemd service files
+      ansible.builtin.template:
+        src: template/etc/systemd/system/mariadb.service.j2
+        dest: "/etc/systemd/system/mariadb-{{ item.version }}.service"
+        owner: root
+        group: root
+        mode: "0644"
+        backup: yes
+      loop: "{{ mariadb_versions }}"
+
+    - name: Create symlink for libncurses
+      ansible.builtin.file:
+        src: /usr/lib64/libncurses.so.6
+        dest: /usr/lib64/libncurses.so.5
+        state: link
+
+    - name: Create symlink for libtinfo
+      ansible.builtin.file:
+        src: /usr/lib64/libtinfo.so.6
+        dest: /usr/lib64/libtinfo.so.5
+        state: link
+
+    - name: Generate MariaDB aliases
+      template:
+        src: template/etc/profile.d/mariadb_aliases.sh.j2
+        dest: /etc/profile.d/mariadb_aliases.sh
+        mode: '0755'

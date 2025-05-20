@@ -1,0 +1,117 @@
+---
+- name: Create mariadb custom users
+  hosts: db
+  become: true
+  collections:
+    - community.mysql
+  vars:
+    db_users:
+      - name: alice_admin
+        password: "password" #"{{ vault_alice_password }}"
+        priv:
+          'foo.*': 'ALL,GRANT'
+          'bar.*': 'ALL,GRANT'
+        host: "localhost"
+      - name: robert
+        password: "password" #"{{ vault_robert_password }}"
+        priv:
+          'foo.*': 'SELECT'
+          'bar.*': 'SELECT,INSERT'
+        host: "localhost"
+    mysql_socket: "/var/lib/mariadb-11.4.4/mariadb.sock"
+
+  tasks:
+
+    - name: Ensure MariaDB users are present with correct privileges
+      community.mysql.mysql_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        priv: "{{ item.priv }}"
+        host: "{{ item.host }}"
+        state: present
+        config_file: /etc/mariadb/11.4.4.cnf
+      loop: "{{ db_users }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Create table in foo as alice_admin
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: alice_admin
+        login_password: password
+        login_db: foo
+        query: |
+          CREATE TABLE IF NOT EXISTS test_alice (value INT);
+      register: res_foo_create
+
+    - name: Assert table creation succeeded
+      ansible.builtin.assert:
+        that:
+          - res_foo_create.rowcount is defined
+        fail_msg: "alice_admin failed to CREATE TABLE in foo"
+
+    - name: Insert into test_alice in foo
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: alice_admin
+        login_password: password
+        login_db: foo
+        query: "INSERT INTO test_alice VALUES ( FLOOR(1 + (RAND() * 1000)) );"
+      register: res_foo_insert
+
+    - name: Select from test_alice in foo
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: alice_admin
+        login_password: password
+        login_db: foo
+        query: "SELECT * FROM test_alice;"
+      register: res_foo_select
+
+    - name: Drop table in bar as alice_admin
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: alice_admin
+        login_password: password
+        login_db: bar
+        query: "DROP TABLE IF EXISTS test_alice;"
+      register: res_bar_drop
+
+    - name: Valid SELECT from foo as robert
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: robert
+        login_password: password
+        login_db: foo
+        query: "SELECT 1;"
+      register: res_robert_select
+
+    - name: Unauthorized CREATE in foo should fail
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: robert
+        login_password: password
+        login_db: foo
+        query: "CREATE TABLE test_robert (x INT);"
+      register: res_robert_create_fail
+      ignore_errors: yes
+
+    - name: Allowed INSERT into bar as robert
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: robert
+        login_password: password
+        login_db: bar
+        query: "INSERT INTO test_robert VALUES ( FLOOR(1 + (RAND() * 1000)) );"
+      register: res_robert_insert
+      ignore_errors: yes
+
+    - name: Unauthorized DELETE in bar should fail
+      community.mysql.mysql_query:
+        login_unix_socket: "{{ mysql_socket }}"
+        login_user: robert
+        login_password: password
+        login_db: bar
+        query: "DELETE FROM test_robert WHERE 1=1;"
+      register: res_robert_delete_fail
+      ignore_errors: yes

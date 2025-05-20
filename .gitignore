@@ -1,0 +1,3 @@
+ansible-ssh-keys/known_hosts
+ansible-ssh-keys/known_hosts.old
+ansible/files/mariadb-*

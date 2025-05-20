@@ -1,0 +1,4 @@
+{% for item in mariadb_versions %}
+alias run_mariadbd-{{ item.version }}='/opt/mariadb/mariadb-{{ item.version }}/bin/mariadbd --defaults-file=/etc/mariadb/{{ item.version }}.cnf --user=mariadb &'
+alias conn_mariadb-{{ item.version }}='/opt/mariadb/mariadb-{{ item.version }}/bin/mariadb -u root -S /var/lib/mariadb-{{ item.version }}/mariadb.sock'
+{% endfor %}

@@ -1,0 +1,11 @@
+[mariadbd]
+port = {{ item.port }}
+datadir = /var/lib/mariadb-{{ item.version }}
+socket = /var/lib/mariadb-{{ item.version }}/mariadb.sock
+pid-file = /var/lib/mariadb-{{ item.version }}/mariadbd.pid
+log-error = /var/log/mariadb-{{ item.version }}.log
+bind-address = 0.0.0.0
+
+[client]
+port = {{ item.port }}
+socket = /var/lib/mariadb-{{ item.version }}/mariadb.sock

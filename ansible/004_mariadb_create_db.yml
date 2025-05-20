@@ -1,0 +1,29 @@
+---
+- name: Setup multiple MariaDB server versions on Linux
+  hosts: db
+  become: true
+  collections:
+    - community.mysql
+
+  tasks:
+
+    - name: Create database foo
+      community.mysql.mysql_db:
+        name: foo
+        state: present
+        config_file: /etc/mariadb/11.4.4.cnf
+
+    - name: Create database bar
+      community.mysql.mysql_db:
+        name: bar
+        state: present
+        config_file: /etc/mariadb/11.4.4.cnf
+
+    - name: Create table in bar
+      community.mysql.mysql_query:
+        config_file: /etc/mariadb/11.4.4.cnf
+        login_db: bar
+        query: |
+          CREATE TABLE IF NOT EXISTS test_robert (value INT);
+# in comando SQL sopra e' idempotente?
+# se il comando SQL e' idempotente, perche' il modulo ritorna sempre lo stato "changed"?

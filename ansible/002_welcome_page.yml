@@ -1,0 +1,42 @@
+---
+- name: Configure welcome page
+  hosts: external:internal
+  gather_facts: yes
+  become: true
+  vars:
+    www_path: /var/www/localhost/htdocs
+    welcome_file: index.html
+    web_servers:
+      - web1
+      - web2
+      - web3
+ 
+  tasks:
+
+    - name: Overwrite index.html
+      copy:
+        dest: "{{ www_path }}/{{ welcome_file }}"
+        content: |
+          <html><body><h1>It works {{ ansible_hostname }}!</h1></body></html>
+        mode: '0644'
+
+    - name: Fetch webpage content
+      uri:
+        url: "http://{{ item }}"
+        method: GET
+        return_content: yes
+        headers:
+          Accept: "text/html"
+      loop: "{{ web_servers }}"
+      run_once: true
+      delegate_to: localhost
+      register: webpage
+
+    - name: Show fetched content per server
+      debug:
+        msg: |
+          From {{ item.item }} (status {{ item.status }}):
+          {{ item.content | default('<<no content>>') }}
+      loop: "{{ webpage.results }}"
+      run_once: true
+      delegate_to: localhost

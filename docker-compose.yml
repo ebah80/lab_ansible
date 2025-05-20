@@ -1,0 +1,72 @@
+services:
+  orchestrator:
+    image: alpine/ansible
+    container_name: ansible-orchestrator
+    networks:
+      - ansible_net
+    volumes:
+      - ./ansible:/ansible:ro
+      - ./ansible-ssh-keys:/root/.ssh    # mount your project’s ansible-user here
+      - ./history_orchestrator:/root/.ash_history
+    environment:
+      ANSIBLE_HOST_KEY_CHECKING: "False"
+    working_dir: /ansible
+    command: tail -f /dev/null       # keep it alive so you can `exec`
+
+  sshnode:
+    build:
+      context: ./sshnode
+      dockerfile: Dockerfile
+    container_name: sshnode
+    networks:
+      - ansible_net
+    volumes:
+      - ./sshnode/content:/usr/local/apache2/htdocs:ro
+      - ./sshnode/authorized_keys:/home/ansible/.ssh/authorized_keys:ro
+
+  web1:
+    build:
+      context: ./web1
+      dockerfile: Dockerfile
+    container_name: web1
+    networks:
+      - ansible_net
+    volumes:
+      - ./web1/content:/usr/local/apache2/htdocs:ro
+      - ./web1/authorized_keys:/home/ansible/.ssh/authorized_keys:ro
+
+  web2:
+    build:
+      context: ./web2
+      dockerfile: Dockerfile
+    container_name: web2
+    networks:
+      - ansible_net
+    volumes:
+      - ./web2/content:/usr/local/apache2/htdocs:ro
+      - ./web2/authorized_keys:/home/ansible/.ssh/authorized_keys:ro
+
+  web3:
+    build:
+      context: ./web3
+      dockerfile: Dockerfile
+    container_name: web3
+    networks:
+      - ansible_net
+    volumes:
+      - ./web3/content:/usr/local/apache2/htdocs:ro
+      - ./web3/authorized_keys:/home/ansible/.ssh/authorized_keys:ro
+
+  mariadb1:
+    build:
+      context: ./mariadb1
+      dockerfile: Dockerfile
+    container_name: mariadb1
+    networks:
+      - ansible_net
+    volumes:
+      - ./mariadb1/authorized_keys:/home/ansible/.ssh/authorized_keys:ro
+
+networks:
+  ansible_net:
+    driver: bridge

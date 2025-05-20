@@ -1,0 +1,12 @@
+[Unit]
+Description=MariaDB {{ item.version }} database server
+After=network.target
+
+[Service]
+ExecStart=/opt/mariadb/mariadb-{{ item.version }}/bin/mysqld --defaults-file=/etc/mariadb-{{ item.version }}/my.cnf
+User=mariadb
+Group=mariadb
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

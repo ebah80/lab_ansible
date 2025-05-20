@@ -1,0 +1,28 @@
+---
+- name: Install Apache2 on Alpine Linux
+  hosts: external:internal
+  gather_facts: yes
+  become: yes
+  become_user: root
+  
+  tasks:
+
+    - name: Install apache2
+      community.general.apk:
+        name: apache2
+        state: present
+        update_cache: false
+
+    - name: Run httpd in background
+      ansible.builtin.command: /usr/sbin/httpd
+      become: yes
+      args:
+        chdir: /usr/sbin
+
+
+
+    # - name: Ensure httpd is enabled at and running now
+    #   ansible.builtin.service:
+    #     name: httpd
+    #     enabled: true
+    #     state: started
