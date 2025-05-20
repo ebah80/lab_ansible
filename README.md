@@ -105,6 +105,11 @@ ansible-playbook 002_welcome_page.yml -i inventory/hosts.ini
 
 ### Install and configure MariaDB
 
+First of all download MariaDB tar.gz from here:
+- https://archive.mariadb.org//mariadb-11.4.4/bintar-linux-systemd-x86_64/mariadb-11.4.4-linux-systemd-x86_64.tar.gz
+and place it under:
+- /ansible/files
+
 ```
 ansible-playbook 003_install_configure_mariadb.yml -i inventory/hosts.ini
 ```
