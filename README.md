@@ -139,7 +139,7 @@ https://galaxy.ansible.com/ui/repo/published/community/mysql/
 ```
 ansible-galaxy collection list
 ansible-galaxy collection install community.mysql
-ls -l /usr/lib/python3.12/site-packages/ansible_collections/community/mysql/plugins/module
+ls -l /usr/lib/python3.12/site-packages/ansible_collections/community/mysql/plugins/modules
 ```
 
 ### Create databases
