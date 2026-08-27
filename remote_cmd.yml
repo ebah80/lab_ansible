@@ -1,0 +1,21 @@
+---
+- name: Verifica Esecuzione Remota e Sudo
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Esegui comando uptime sul target
+      ansible.builtin.command: uptime
+      register: remote_uptime
+
+    - name: Verifica elevazione privilegi (sudo whoami)
+      ansible.builtin.command: whoami
+      become: yes
+      register: sudo_user
+
+    - name: Stampa informazioni reali del server remoto
+      ansible.builtin.debug:
+        msg:
+          - "Host connesso: {{ inventory_hostname }}"
+          - "Sistema Operativo: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "Uptime remoto: {{ remote_uptime.stdout }}"
+          - "Utente elevation (become): {{ sudo_user.stdout }}"
