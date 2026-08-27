@@ -1,6 +1,6 @@
 ---
 - name: Install Apache2 on Alpine Linux
-  hosts: external:internal
+  hosts: all
   gather_facts: yes
   become: yes
   become_user: root
