@@ -1,0 +1,7 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Test Connessione Ansible CA
+      ansible.builtin.ping:
+
