@@ -7,11 +7,11 @@
   
   tasks:
 
-    - name: Install apache2
-      community.general.apk:
-        name: apache2
+    - name: Install Apache
+      ansible.builtin.dnf:
+        name: httpd
         state: present
-        update_cache: false
+       update_cache: false
 
     - name: Ensure httpd is enabled at and running now
       ansible.builtin.service:
