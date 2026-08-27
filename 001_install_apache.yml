@@ -13,16 +13,8 @@
         state: present
         update_cache: false
 
-    - name: Run httpd in background
-      ansible.builtin.command: /usr/sbin/httpd
-      become: yes
-      args:
-        chdir: /usr/sbin
-
-
-
-    # - name: Ensure httpd is enabled at and running now
-    #   ansible.builtin.service:
-    #     name: httpd
-    #     enabled: true
-    #     state: started
+    - name: Ensure httpd is enabled at and running now
+      ansible.builtin.service:
+        name: httpd
+        enabled: true
+        state: started
