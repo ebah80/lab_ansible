@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x  # Stampa ogni comando prima di eseguirlo
 set -euo pipefail
 
 # 1. Creazione directory temporanea univoca per l'esecuzione corrente
