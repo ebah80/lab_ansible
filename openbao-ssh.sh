@@ -1,33 +1,31 @@
-#!/bin/bash
-# file: openbao-ssh.sh
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Crea una directory temporanea univoca per questo task
-CERT_DIR="/tmp/bao_cert_$$"
-mkdir -p "$CERT_DIR"
-chmod 700 "$CERT_DIR"
+# 1. Creazione directory temporanea univoca per l'esecuzione corrente
+TMP_DIR=$(mktemp -d /tmp/bao_ssh.XXXXXX)
 
-# 1. Login a OpenBao e recupero Token (estrae il JSON via Python)
-BAO_TOKEN=$(curl -s -k --request POST \
-  --data "{\"role_id\": \"$BAO_ROLE_ID\", \"secret_id\": \"$BAO_SECRET_ID\"}" \
-  "$BAO_ADDR/v1/auth/approle/login" | \
-  python3 -c "import sys, json; print(json.load(sys.stdin)['auth']['client_token'])")
+# Rimozione automatica delle chiavi temporanee all'uscita dallo script (anche in caso di errore)
+cleanup() {
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
 
-# 2. Generazione chiave locale
-ssh-keygen -t ed25519 -N "" -f "$CERT_DIR/id_ed25519" -q
+KEY_PATH="$TMP_DIR/id_ed25519"
+CERT_PATH="$TMP_DIR/id_ed25519-cert.pub"
 
-# 3. Richiesta firma certificato
-PUB_KEY=$(cat "$CERT_DIR/id_ed25519.pub")
-curl -s -k --header "X-Vault-Token: $BAO_TOKEN" \
-  --request POST \
-  --data "{\"valid_principals\": \"ansible\", \"public_key\": \"$PUB_KEY\"}" \
-  "$BAO_ADDR/v1/ssh-client-signer/sign/ansible-role" | \
-  python3 -c "import sys, json; print(json.load(sys.stdin)['data']['signed_key'])" > "$CERT_DIR/id_ed25519-cert.pub"
+# 2. Generazione chiave ED25519 senza passphrase e con redirect da /dev/null
+ssh-keygen -q -t ed25519 -N "" -f "$KEY_PATH" < /dev/null
 
-# 4. Esecuzione del comando SSH originale richiesto da Ansible
-ssh -o StrictHostKeyChecking=no -i "$CERT_DIR/id_ed25519" -i "$CERT_DIR/id_ed25519-cert.pub" "$@"
-EXIT_CODE=$?
+# 3. Richiesta del certificato firmato a OpenBao/Vault
+# Nota: BAO_ADDR e BAO_TOKEN devono essere esportati nelle variabili d'ambiente di Semaphore UI
+OPENBAO_ROLE="${OPENBAO_SSH_ROLE:-ansible-role}"
 
-# 5. Pulizia delle chiavi al termine
-rm -rf "$CERT_DIR"
-exit $EXIT_CODE
+bao write -field=signed_key ssh/sign/"$OPENBAO_ROLE" \
+    public_key=@"${KEY_PATH}.pub" \
+    valid_principals="ansible" > "$CERT_PATH"
+
+# 4. Sostituzione del processo corrente con SSH (evita processi bash orfani)
+exec ssh \
+  -i "$KEY_PATH" \
+  -o CertificateFile="$CERT_PATH" \
+  "$@"
